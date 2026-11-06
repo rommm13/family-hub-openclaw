@@ -2,7 +2,7 @@
 
 `family-hub` — Telegram-first плагин для OpenClaw: общее семейное состояние, действия, заметки, желания, места, планы, опросы, капсулы, цели, напоминания, сюрпризы и (опционально) синхронизация с Google Calendar / Google Drive. В составе плагина есть собственный Telegram Mini App UI в `miniapp/` (маршрут `/family-app/`), работающий поверх общей SQLite-базы и runtime-плагина.
 
-> Статус: public-facing документация по текущему исходному коду в корне пакета. Процедуры install/update/uninstall, backup/restore и HTTPS/Mini App **не проверялись** на чистой установке Gateway/mobile — перед эксплуатацией прогоняйте на чистом стенде.
+> Статус: public beta `0.2.22-beta.1`. Локальные проверки пройдены: установка из архива, loopback-Gateway, статическая отдача Mini App, синтетические backup/restore/rollback, ClawHub Inspector. **Known beta limitation: реальный mobile WebView Telegram на iOS/Android с живым ботом не проверен** — перед боевой эксплуатацией прогоните на чистом стенде.
 
 ## Проверенный локальный baseline (только то, что реально проверено)
 
@@ -40,7 +40,7 @@ node --version      # v24.19.0
 
 ## Установка / обновление / удаление плагина (команды сверены по OpenClaw CLI 2026.9.7)
 
-> Выполнять в окружении, где установлен OpenClaw 2026.9.7. Заменяйте `<path-or-spec-or-plugin>` / `<plugin-id>` на реальные значения. На чистой установке Gateway/mobile не проверялось.
+> Выполнять в окружении, где установлен OpenClaw 2026.9.7. Заменяйте `<path-or-spec-or-plugin>` / `<plugin-id>` на реальные значения. Локальная установка из архива проверена на стенде автора; мобильная проверка Mini App — известное ограничение беты (см. «Release validation status»).
 
 ### Установка
 
@@ -132,7 +132,7 @@ Mini App живёт в `miniapp/`, обслуживается маршрутом
 
 ## Чистая установка Gateway/mobile
 
-**Clean Gateway/mobile install not tested.** Любые шаги из этого README, связанные с установкой плагина, HTTPS/Mini App, календарём/Drive, backup/restore и мобильной проверкой, требуют отдельного прогона на чистом стенде перед продакшеном.
+Локальная установка из собранного архива и loopback-Gateway проверены на стенде автора (см. «Release validation status» ниже). **Не проверены и остаются известным ограничением беты:** реальный mobile WebView Telegram на iOS/Android с живым ботом, staging-деплой с реальным backup/rollback, публичная GitHub-провенанс-история до публикации. Любые шаги, связанные с мобильной проверкой Mini App на чистой установке, требуют отдельного прогона на чистом стенде перед продакшеном.
 
 ## Что не входит в этот документ
 
@@ -167,13 +167,14 @@ Use the OpenClaw CLI to validate the plugin:
 
 The published npm tarball intentionally excludes developer tests. The private code base also contains an operational Python schedule generator that is not distributed. Therefore public tests and the private baseline have different counts.
 
-## Release validation status (2026-11-06)
+## Release validation status (0.2.22-beta.1, 2026-11-07)
 
-- MIT license approved. No public release has been initiated.
+- MIT license approved. No public release has been initiated yet.
 - Local archive install and runtime inspection passed with OpenClaw 2026.9.7 on portable Node 24.22.1 in an isolated profile. The CLI's OpenClaw peer was linked from an existing test install; this is not an independent installation of the OpenClaw application itself.
 - Loopback-only Gateway and Mini App static HTTP routes passed. Telegram channels remained disabled.
 - Synthetic SQLite online backup, restore and rollback rehearsal passed.
 - ClawHub Inspector static validation completed; dry-run requires matching source repository and source commit metadata.
-- Real Telegram WebView tests, staging deployment with real backup and rollback, and public GitHub provenance remain unverified.
+- **P0 auto-surprise fix:** the configured recipient (`surpriseAutoMemberId`) is now served by the built-in `family-hub-outbox` worker (`maybeRunConfiguredAutoSurprise` → `runAutomaticSurpriseTick` → `surprise_media` outbox), no external cron/Python. Manual «Сюрприз» button, all Telegram buttons/callback_data and Mini App styling unchanged. Covered by `test/auto-surprise.test.mjs` (bootstrap, due, repeat/restart, retry, empty assets, no route, 2 households) plus existing `test/surprises.test.mjs`.
+- Real Telegram WebView tests, staging deployment with real backup and rollback, and public GitHub provenance remain unverified (known beta limitation).
 
 Do not publish before the final required gates are complete.

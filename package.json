@@ -1,6 +1,6 @@
 {
     "name":  "@rommm13/openclaw-family-hub",
-    "version":  "0.2.22",
+    "version":  "0.2.22-beta.1",
     "type":  "module",
     "scripts":  {
                     "test":  "node --test",

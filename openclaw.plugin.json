@@ -68,7 +68,7 @@
       }
     }
   },
-  "version": "0.2.22",
+  "version": "0.2.22-beta.1",
   "contracts": {
     "tools": [
       "family"

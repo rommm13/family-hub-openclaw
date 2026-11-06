@@ -10,7 +10,7 @@ import { listSection, searchNotes, getPollForViewer, createCapsule, unlockCapsul
 import { createFamilyTool, executeFamilyAction } from "./tool.js";
 import { createGwsCliRunner, createGwsCalendarAdapter, syncActionCalendar, syncFamilyEventCalendar, reconcileFamilyCalendarEvents, isCalendarGateOpen } from "./calendar.js";
 import { enqueueDailyActionReminders } from "./reminders.js";
-import { selectManualSurprise, releaseManualSurprise, stageSurpriseAsset } from "./surprises.js";
+import { selectManualSurprise, releaseManualSurprise, stageSurpriseAsset, runAutomaticSurpriseTick } from "./surprises.js";
 import { familyMiniapp } from "../miniapp/api.mjs";
 import { createFamilyNotifications } from "../miniapp/push-notify.mjs";
 import {
@@ -618,6 +618,47 @@ export async function runFamilyMaintenance({
     processed += 1;
   }
   return { remindersCreated, processed };
+}
+
+// Автосюрприз для явно настроенного получателя (surpriseAutoMemberId).
+// Получатель задаётся владельцем при настройке — никакого определения пола по имени.
+// Вызывается из штатного family-hub-outbox worker, без внешнего cron/Python.
+// При отсутствии библиотеки/маршрута пропускает с диагностикой, чужим ID ничего не шлёт.
+export function resolveAutoSurpriseAgentId(db, memberId, runtimeId, fallbackAgentIds = []) {
+  try {
+    const row = db.prepare(
+      "SELECT agent_id AS agentId FROM agent_bindings WHERE runtime_id=? AND member_id=? ORDER BY agent_id LIMIT 1"
+    ).get(runtimeId, memberId);
+    if (row?.agentId) return row.agentId;
+  } catch {}
+  return fallbackAgentIds[0] ?? null;
+}
+
+export function maybeRunConfiguredAutoSurprise({
+  db, runtimeId, memberId = null, agentId = null, fallbackAgentIds = [],
+  assetDir, now = Date.now(), random = Math.random, timeZone = "Europe/Moscow", logger = null
+}) {
+  const target = String(memberId ?? "").trim();
+  if (!target) return { status: "disabled" };
+  let exists = false;
+  try {
+    exists = Boolean(db.prepare("SELECT id FROM members WHERE id=?").get(target));
+  } catch (error) {
+    return { status: "error", error: String(error?.message ?? error) };
+  }
+  if (!exists) return { status: "unknown_member" };
+  const boundAgent = agentId ?? resolveAutoSurpriseAgentId(db, target, runtimeId, fallbackAgentIds);
+  if (!boundAgent) return { status: "no_binding" };
+  try {
+    return runAutomaticSurpriseTick({
+      db, memberId: target, runtimeId, agentId: boundAgent,
+      assetDir, now, random, timeZone
+    });
+  } catch (error) {
+    const message = String(error?.message ?? error);
+    try { logger?.warn?.(`family-hub auto-surprise: ${message}`); } catch {}
+    return { status: "error", error: message };
+  }
 }
 
 export function createCalendarOutboxHandlers({ db, calendar, calendarId }) {
@@ -1551,6 +1592,7 @@ export function registerConfiguredFamilyHub(api, { installPersistentKeyboard = n
   const capsuleMediaDir = `${surpriseMediaDir.replace(/\/$/u, "")}/capsules`;
   const surpriseManualLimitRaw = Number(cfg.surpriseManualLimit);
   const surpriseManualLimit = Number.isInteger(surpriseManualLimitRaw) && surpriseManualLimitRaw >= 1 && surpriseManualLimitRaw <= 1000 ? surpriseManualLimitRaw : 10;
+  const surpriseAutoMemberId = String(cfg.surpriseAutoMemberId ?? "").trim() || null;
   const surpriseUnlimitedMemberIds = Array.isArray(cfg.surpriseUnlimitedMemberIds)
     ? cfg.surpriseUnlimitedMemberIds.filter(v => typeof v === "string")
     : [];
@@ -1712,6 +1754,25 @@ export function registerConfiguredFamilyHub(api, { installPersistentKeyboard = n
           handlers,
           send: (route, text) => send(ctx, route, text)
         });
+      }
+      // P0: автоматический сюрприз явно настроенному получателю — в штатном
+      // family-hub-outbox worker, без внешнего cron. Один вызов на цикл,
+      // идемпотентен (not_due/scheduled/quiet_hours/daily_limited без дублей).
+      if (!stopped && surpriseAutoMemberId) {
+        try {
+          const tick = maybeRunConfiguredAutoSurprise({
+            db, runtimeId, memberId: surpriseAutoMemberId, fallbackAgentIds: agentIds,
+            assetDir: surpriseAssetDir, now: nowMs, random: Math.random,
+            timeZone: reminderTimezone, logger: ctx.logger
+          });
+          if (tick?.status === "queued") {
+            ctx.logger?.info?.(`family-hub auto-surprise queued for ${surpriseAutoMemberId}`);
+          } else if (tick?.status === "error" || tick?.status === "unknown_member" || tick?.status === "no_binding") {
+            ctx.logger?.warn?.(`family-hub auto-surprise: ${tick.status}${tick.error ? `: ${tick.error}` : ""}`);
+          }
+        } catch (error) {
+          ctx.logger?.warn?.(`family-hub auto-surprise: ${error?.message ?? String(error)}`);
+        }
       }
       if (!stopped && nowMs - lastPushTick >= 15000) {
         lastPushTick = nowMs;
