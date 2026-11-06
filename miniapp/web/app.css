@@ -1,0 +1,81 @@
+:root{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#24292f;background:#eef1f5;font-size:16px;font-synthesis:none}*{box-sizing:border-box}body{margin:0;min-height:100dvh}button,input,textarea,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.5;cursor:wait}.paper{min-height:100dvh;padding:calc(14px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));background:#eef1f5}.frame{position:relative;max-width:680px;min-height:calc(100dvh - 42px);margin:auto;border:1px solid #d7dde5;border-radius:16px;padding:20px 18px 18px;display:flex;flex-direction:column;background:#f9fbfd;box-shadow:0 1px 2px rgba(31,41,55,.06)}.mast{display:flex;justify-content:space-between;align-items:flex-start;gap:9px;padding:10px 4px 12px}.eyebrow{color:#57606a;font-size:clamp(14px,4vw,18px);line-height:1.2;margin:0 0 4px;font-weight:600}.mast h1{font-size:clamp(28px,7.8vw,42px);line-height:1.06;font-weight:700;margin:0 0 4px;color:#1f2328;letter-spacing:-.02em}.subtitle{color:#57606a;font-size:clamp(13px,3.6vw,16px);margin:0}.notice{margin:8px 0;padding:12px;border:1px solid #d0d7de;border-radius:10px;background:#f6f8fa;font-size:15px;line-height:1.3;color:#24292f}.notice.success{background:#dafbe1;border-color:#4ac26b;color:#1a7f37}#content{flex:1;margin:6px 0 12px}.loading,.empty{min-height:120px;display:grid;place-items:center;text-align:center;font-size:19px;line-height:1.35;color:#57606a;padding:10px 2px}.welcome{padding:0 4px 12px;font-size:17px;line-height:1.35;color:#57606a}.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.tile{position:relative;background:#fff;border:1px solid #d0d7de;border-radius:12px;padding:15px 11px;text-align:left;display:grid;gap:4px;color:inherit;box-shadow:0 1px 2px rgba(31,41,55,.04)}.tile .symbol{font-size:31px;line-height:1}.tile .name{font-size:clamp(17px,4.4vw,20px);color:#1f2328;line-height:1.15;font-weight:600}.tile .count{position:absolute;top:-7px;right:-6px;background:#eaeef2;color:#24292f;border:1px solid #d0d7de;border-radius:12px;padding:2px 7px;font:700 12px system-ui,sans-serif}.tile .count.fresh{background:#cf222e;color:#fff;border-color:#a40e26}.tile .tinyheart{display:none}.decor{display:none}.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin:2px 0 11px;padding:0 1px}.section-kicker{font-size:13px;color:#57606a;margin:0 0 2px}.section-title{font-size:clamp(22px,5.8vw,30px);color:#1f2328;line-height:1.12;margin:0;font-weight:700}.hint{font-size:14px;color:#57606a;line-height:1.3;margin-top:5px}.pill-row{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}.items{display:grid;gap:10px}.item{border:1px solid #d0d7de;border-radius:11px;padding:12px 12px 10px;background:#fff}.item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.item-main{text-align:left;color:inherit;border:0;background:none;padding:0}.item-title{font-size:clamp(17px,4.4vw,20px);color:#1f2328;line-height:1.18;display:block;font-weight:600}.item-meta{font-size:14px;color:#57606a;margin-top:5px;line-height:1.25}.item-body{font-size:16px;color:#24292f;margin-top:8px;white-space:pre-wrap;line-height:1.35;overflow-wrap:anywhere}.item-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.primary,.quiet,.link,.small-button,.danger{border-radius:9px;padding:10px 12px}.primary{background:#cf222e;color:#fff;border:1px solid #a40e26;font-size:16px}.quiet{background:#f6f8fa;color:#24292f;border:1px solid #d0d7de}.link{background:none;border:0;padding:0;color:inherit}.small-button{border:1px solid #d0d7de;background:#f6f8fa;color:#24292f;font-size:13px;padding:6px 9px}.danger{background:#ffebe9;color:#cf222e;border-color:#ff8182}.full{width:100%}.form{display:grid;gap:11px}.form label{display:grid;gap:5px;font-size:15px;color:#24292f;line-height:1.2}.form input,.form textarea,.form select{width:100%;background:#fff;border:1px solid #d0d7de;border-radius:9px;padding:11px 12px;font:inherit;color:#24292f;appearance:none}.form textarea{resize:vertical;min-height:88px;line-height:1.35}.form-actions{display:flex;gap:8px}.form-actions>*{flex:1}.foot{margin-top:6px;color:#57606a;text-align:center;padding:8px 2px 0;font-size:12px;display:flex;justify-content:space-between;gap:6px}.foot-rule{display:none}.edition{color:#57606a;font-style:normal}
+.cashback-bank-list{display:grid;gap:10px}.bank{background:#fff;border:1px solid #d0d7de;border-radius:10px;padding:12px 13px}.bank-name{font-family:inherit;font-size:17px;line-height:1.2;margin:0 0 9px;color:#1f2328;font-weight:600}.bank-entries{display:grid;gap:6px}.bank-line{font-size:15px;line-height:1.4;color:#24292f;overflow-wrap:anywhere}.bank-line::first-letter{color:inherit}
+.plan-tabs{display:flex;gap:7px;flex-wrap:wrap}.plan-tabs .small-button{flex:1;min-width:75px}.item-main.item-title{display:block;width:100%}
+/* Main menu: all 12 original commands fit inside the Telegram viewport. */
+@media (max-width: 519px) {
+ body.home-view {height:100dvh; min-height:0; overflow:hidden;}
+ body.home-view .paper {height:100dvh; min-height:0; padding:calc(5px + env(safe-area-inset-top)) 8px calc(6px + env(safe-area-inset-bottom));}
+ body.home-view .frame {height:100%; min-height:0; padding:8px 12px 8px;}
+ body.home-view .mast {flex:0 0 auto; padding:1px 1px 4px; gap:6px;}
+ body.home-view .eyebrow {font-size:16px; line-height:1.05;}
+ body.home-view .mast h1 {font-size:clamp(22px, 6.4vw, 28px); line-height:1.04; margin:0 0 3px; letter-spacing:-.02em;}
+ body.home-view .subtitle {font-size:11px; line-height:1.2;}
+ body.home-view #content {display:flex; flex:1 1 auto; flex-direction:column; min-height:0; margin:2px 0 5px;}
+ body.home-view .welcome {flex:0 0 auto; font-size:13px; line-height:1.2; padding:3px 1px 7px;}
+ body.home-view .tiles {display:grid; flex:1 1 auto; min-height:0; grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:repeat(6,minmax(0,1fr)); gap:7px;}
+ body.home-view .tile {display:flex; flex-direction:row; align-items:center; justify-content:flex-start; gap:7px; min-height:0; padding:4px 8px; border-radius:10px;}
+ body.home-view .tile .symbol {flex:0 0 28px; width:28px; font-size:22px; text-align:center;}
+ body.home-view .tile .name {font-size:clamp(15px,4.1vw,18px); line-height:1.1;}
+ body.home-view .tile .count,body.home-view .tile .tinyheart,body.home-view .decor {display:none;}
+ body.home-view #content>.quiet.full {flex:0 0 auto; min-height:31px; margin-top:7px; padding:5px; font-size:13px; line-height:19px; border-radius:9px;}
+ body.home-view .foot {flex:0 0 auto; margin:0; padding:5px 2px 0; font-size:10px; line-height:1.2;}
+}
+@media (max-width:350px) {
+ body.home-view .frame {padding-left:10px; padding-right:10px;}
+ body.home-view .tile {padding:3px 5px; gap:4px;}
+ body.home-view .tile .symbol {flex-basis:24px; font-size:19px;}
+ body.home-view .tile .name {font-size:14px;}
+}
+@media (max-height:610px) and (max-width:519px) {
+ body.home-view .subtitle {display:none;}
+ body.home-view .welcome {font-size:12px; padding:1px 0 4px;}
+ body.home-view .tile {padding-top:2px; padding-bottom:2px;}
+ body.home-view .tiles {gap:5px;}
+ body.home-view .mast h1 {font-size:22px;}
+}
+.cashback-intro {margin:0 0 12px;}
+.cashback-title {margin:0 0 4px; color:#1f2328; font-size:clamp(20px,5.5vw,26px); line-height:1.15;font-weight:700;}
+.cashback-note {margin:0; font-size:13px; color:#57606a; font-style:normal;}
+.cashback-controls {display:flex; justify-content:flex-end; margin:15px 0;}
+/* Every percentage is colored automatically for current and future months. */
+.bank-line .cashback-percent{color:#cf222e;font-weight:700;white-space:nowrap}
+/* Family Hub v2: twelve slim buttons, four rows, breathing room below. */
+@media (max-width:519px){
+ body.home-view .frame{padding:10px 12px 11px;}
+ body.home-view #content{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;}
+ body.home-view .tiles{display:grid;flex:0 0 auto;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(4,58px);gap:9px;align-content:start;}
+ body.home-view .tile{position:relative;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 3px 5px;text-align:center;border-radius:11px;}
+ body.home-view .tile .symbol{font-size:22px;flex:none;width:auto;line-height:1.1;}
+ body.home-view .tile .name{font-size:clamp(12px,3.45vw,14px);line-height:1.05;}
+ body.home-view .tile .count{display:block;position:absolute;top:-6px;right:-5px;background:#eaeef2;color:#24292f;border:1px solid #d0d7de;border-radius:12px;padding:1px 5px;font:700 11px system-ui,sans-serif;box-shadow:0 1px 1px rgba(0,0,0,.08);}
+ body.home-view .tile .count.fresh{background:#cf222e;color:white;border-color:#a40e26;}
+ body.home-view #content>.quiet.full{margin-top:16px;min-height:30px;flex:0 0 auto;}
+ body.home-view .foot{margin-top:auto;}
+}
+@media (max-height:610px) and (max-width:519px){
+ body.home-view .tiles{grid-template-rows:repeat(4,47px);gap:5px;}
+ body.home-view .tile .symbol{font-size:19px;}
+ body.home-view .tile .name{font-size:11px;}
+}
+.place-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;border:1px solid #d0d7de;background:#f6f8fa;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-remove{position:absolute;top:3px;right:4px;font:700 16px system-ui,sans-serif;color:#cf222e;background:#fff;border-radius:50%;padding:1px 7px;border:1px solid #d0d7de;}
+.photo-file{display:none;}
+.shopping-preview{display:grid;gap:8px;}
+.shopping-edit-row{display:flex;gap:6px;align-items:center;}
+.shopping-edit-row input{min-width:0;flex:1;width:100%;background:#fff;border:1px solid #d0d7de;border-radius:9px;padding:11px;}
+.shopping-edit-row button{flex:0 0 35px;}
+.item-expanded:empty{display:none;}
+.smart-draft{display:grid;gap:7px;border:1px dashed #d0d7de;padding:10px;border-radius:11px;background:#f6f8fa;}
+.smart-draft textarea{min-height:57px;}
+.smart-draft button{justify-self:start;}
+/* General family photo attachments: Plans, Places, Notes, Actions, Wishes and Events. */
+.photo-attach-field{display:grid;gap:9px;border:1px dashed #d0d7de;border-radius:12px;background:#f6f8fa;padding:10px 12px;}
+.photo-selection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;}
+.photo-selected{position:relative;aspect-ratio:1;border:1px solid #d0d7de;border-radius:9px;overflow:hidden;background:#f6f8fa;}
+.photo-selected img{width:100%;height:100%;object-fit:cover;}
+.photo-overlay{position:fixed;inset:0;background:rgba(31,35,40,.9);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;}
+.photo-overlay img{max-width:100%;max-height:78dvh;object-fit:contain;border-radius:8px;}
+.photo-overlay button{min-width:140px;}
+.photo-thumb img{cursor:zoom-in;}

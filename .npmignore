@@ -1,0 +1,28 @@
+node_modules/
+*.tgz
+test/
+docs/
+
+__pycache__/
+*.pyc
+
+# dev-only / не в runtime-пакет
+bin/
+tools/preview.mjs
+miniapp/audit*.mjs
+miniapp/check.mjs
+miniapp/test-push.mjs
+miniapp/auth.test.mjs
+miniapp/CASHBACK_STYLE.md
+miniapp/IMPORT_SOURCE.md
+miniapp/upstream/
+miniapp/web/robot*
+
+# Never publish runtime/debug output
+*.log
+*.sqlite
+*.sqlite-*
+*.db
+.env
+.env.*
+*.bak

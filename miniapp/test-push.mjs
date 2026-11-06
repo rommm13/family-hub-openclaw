@@ -1,0 +1,56 @@
+import { DatabaseSync } from 'node:sqlite';
+import assert from 'node:assert/strict';
+import { createFamilyNotifications } from './push-notify.mjs';
+const db=new DatabaseSync(':memory:');
+db.exec(`
+CREATE TABLE entity_events (id INTEGER PRIMARY KEY AUTOINCREMENT,entity_type TEXT,entity_id TEXT,actor_id TEXT,event_type TEXT,created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE members (id TEXT PRIMARY KEY,name TEXT,household_id TEXT,role TEXT);
+CREATE TABLE member_routes(member_id TEXT,channel TEXT,account_id TEXT,target TEXT,updated_at TEXT DEFAULT CURRENT_TIMESTAMP);
+CREATE TABLE family_events(id TEXT PRIMARY KEY,household_id TEXT,created_by TEXT,title TEXT,start_at TEXT);
+CREATE TABLE places(id TEXT PRIMARY KEY,household_id TEXT,created_by TEXT,name TEXT,comment TEXT);
+CREATE TABLE notes(id TEXT PRIMARY KEY,household_id TEXT,created_by TEXT,title TEXT,visibility TEXT,deleted_at TEXT);
+CREATE TABLE note_acl(note_id TEXT,member_id TEXT);
+CREATE TABLE miniapp_meta(section TEXT,entity_id TEXT,due_at TEXT);
+CREATE TABLE shopping_items(id TEXT PRIMARY KEY,household_id TEXT,name TEXT);
+CREATE TABLE capsules(id TEXT PRIMARY KEY,household_id TEXT,author_id TEXT,recipient_id TEXT,unlock_at TEXT);
+CREATE TABLE poll_participants(poll_id TEXT,member_id TEXT);
+CREATE TABLE polls(id TEXT PRIMARY KEY,household_id TEXT,question TEXT);
+`);
+db.prepare('INSERT INTO members VALUES(?,?,?,?)').run('participant_alpha','Иван','family','parent');
+db.prepare('INSERT INTO members VALUES(?,?,?,?)').run('participant_beta','Мария','family','parent');
+db.prepare('INSERT INTO member_routes(member_id,channel,account_id,target) VALUES(?,?,?,?)').run('participant_alpha','telegram','default','telegram:111111');
+db.prepare('INSERT INTO member_routes(member_id,channel,account_id,target) VALUES(?,?,?,?)').run('participant_beta','telegram','agent_second','telegram:222222');
+const delivered=[],requested=[];
+let fail=false;
+const mockFetch=async (url,request)=>{
+  const body=JSON.parse(request.body);requested.push({url,body});
+  if(fail)return {ok:false,status:500,json:async()=>({ok:false,error_code:500})};
+  delivered.push({url,body});return {ok:true,status:200,json:async()=>({ok:true,result:{message_id:400+delivered.length}})};
+};
+const dispatcher=createFamilyNotifications({db,tokenForAccount:a=>a==='agent_second'?'agent_second-bot':'agent_core-bot',appUrl:'https://example.com/family-app/',fetchImpl:mockFetch,logger:{warn(){},info(){}},initialCursor:0});
+const event=(type,id,author)=>db.prepare('INSERT INTO entity_events(entity_type,entity_id,actor_id,event_type) VALUES(?,?,?,?)').run(type,id,author,'created');
+const first=db.prepare('INSERT INTO family_events VALUES(?,?,?,?,?)');
+first.run('e1','family','participant_alpha','Семейная прогулка','2027-04-14');event('family_event','e1','participant_alpha');
+let a=await dispatcher.tick();
+assert.equal(a.sent,1);assert.equal(delivered.length,1);assert(delivered[0].url.includes('agent_second-bot'));assert.equal(delivered[0].body.chat_id,'222222');assert(delivered[0].body.text.includes('Семейная прогулка'));assert(delivered[0].body.reply_markup.inline_keyboard[0][0].web_app.url.includes('family-app'));
+await dispatcher.tick();assert.equal(delivered.length,1,'duplicate sent');
+first.run('e2','family','participant_beta','Поход в музей','2027-05-01');event('family_event','e2','participant_beta');
+a=await dispatcher.tick();assert.equal(a.sent,1);assert(delivered[1].url.includes('agent_core-bot'));assert.equal(delivered[1].body.chat_id,'111111');
+db.prepare('INSERT INTO notes VALUES(?,?,?,?,?,NULL)').run('n1','family','participant_alpha','Личное','owner');event('note','n1','participant_alpha');
+await dispatcher.tick();assert.equal(delivered.length,2,'private note leaked');
+db.prepare('INSERT INTO notes VALUES(?,?,?,?,?,NULL)').run('n2','family','participant_alpha','Общая записка','household');event('note','n2','participant_alpha');
+await dispatcher.tick();assert.equal(delivered.length,3,'shared note missing');
+db.prepare('INSERT INTO capsules VALUES(?,?,?,?,?)').run('c1','family','participant_beta','participant_alpha','2027-07-20');event('capsule','c1','participant_beta');
+await dispatcher.tick();assert.equal(delivered.length,4);assert(!delivered[3].body.text.includes('secret'));
+for(let i=1;i<=3;i++){
+ db.prepare('INSERT INTO shopping_items VALUES(?,?,?)').run(`s${i}`,'family', ['Яйца','Творог','Курица'][i-1]);
+ event('shopping_item',`s${i}`,'participant_alpha');
+}
+await dispatcher.tick();assert.equal(delivered.length,4,'shop alerts were not debounced');
+db.exec("UPDATE miniapp_notification_jobs SET available_at=datetime('now','-1 minute') WHERE entity_type='shopping_item'");
+a=await dispatcher.tick();assert.equal(a.sent,3);assert.equal(delivered.length,5,'shopping list should be grouped into one push');assert(delivered[4].body.text.includes('Яйца'));assert(delivered[4].body.text.includes('Творог'));
+first.run('e3','family','participant_alpha','Кино','2027-04-20');event('family_event','e3','participant_alpha');fail=true;a=await dispatcher.tick();assert.equal(a.failed,1);assert.equal(delivered.length,5);fail=false;
+db.exec("UPDATE miniapp_notification_jobs SET available_at=datetime('now','-1 minute') WHERE status='pending'");a=await dispatcher.tick();assert.equal(a.sent,1);assert.equal(delivered.length,6);
+assert.equal(db.prepare("SELECT COUNT(*) AS n FROM miniapp_notification_jobs WHERE status='sent'").get().n,8);
+console.log('PUSH TESTS PASS: reciprocal Agent Alpha/Agent Beta, no duplicates, private notes, shared notes, capsule privacy, grouped shopping, retry, mini app button');
+dispatcher.close();db.close();

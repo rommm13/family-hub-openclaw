@@ -1,0 +1,4 @@
+interface:
+  display_name: "Family You&Me"
+  short_description: "Shared family hub in Telegram"
+  default_prompt: "Use $family-youme to manage this shared family request through Family Hub."

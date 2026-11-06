@@ -1,0 +1,77 @@
+# Family Hub Mini App (компонент плагина)
+
+Telegram Mini App UI в составе `family-hub` (`plugin/miniapp/`). Работает поверх общей SQLite-базы Family Hub и runtime-плагина OpenClaw; отдельной копии бизнес-логики здесь нет.
+
+> Статус: документация компонента по текущему исходному коду. **Clean Gateway/mobile install not tested** — HTTPS/Mini App, Gateway, Telegram mobile, календарь/Drive и AI-функции требуют проверки на чистом стенде.
+
+## Базовые функции
+
+- Главный экран: 12 разделов (Календарь, Купить, Дела, Записки, Планы, Куда, Цели, Хочу, Выбрать, Капсулы, Кэшбэк, Сюрприз) в мобильном Telegram WebView.
+- Счётчики непросмотренных/активных записей по событиям основной базы; отметки просмотра раздельные для участников семьи.
+- Архив просроченных по дате записей; исходные данные не удаляются. Ручное архивирование/восстановление — где это предусмотрено моделью раздела.
+- Фото к поддерживаемым записям (по текущему коду: calendar/actions/shopping/notes/plans/places/goals/wishes/polls): до 6 фото на запись, метаданные — в miniapp-слое БД, файлы — в закрытом `placePhotoDir`.
+
+## HTTPS URL setup и prerequisites (Mini App)
+
+Telegram Mini App открывается по **HTTPS URL**. Для Family Hub Mini App нужен опубликованный маршрут `/family-app/`:
+
+1. Разверните/настройте Gateway так, чтобы Family Hub Mini App был доступен по HTTPS (домен, reverse proxy или другой доверенный HTTPS-путь, принятый в вашей эксплуатации OpenClaw). Конкретная сетевая схема зависит от стенда — в этой задаче не проверялась.
+2. Укажите `miniAppUrl` в конфиге плагина — базовый HTTPS URL Mini App (кнопка/навигация).
+3. Подключите Telegram-бота к OpenClaw каналом `telegram`; храните токен только в защищённой конфигурации/секретах.
+4. Проверьте, что участники семьи имеют корректные Telegram routes/bindings в Family Hub, иначе initData не привяжется к участнику.
+5. Проверьте открытие в DM/Telegram WebView на целевом mobile/Gateway; clean Gateway/mobile здесь **не проверялось**.
+
+Для Control UI Dashboard Mini App (`/dashboard`) OpenClaw CLI/docs 2026.9.7 используют отдельный Tailscale-путь (`gateway.tailscale.mode: serve` или `funnel`) — это **не то же самое**, что собственный Family Hub маршрут `/family-app/`. Не подменяйте один сценарий другим без проверки на вашем стенде.
+
+Проверенные команды OpenClaw 2026.9.7 для подготовки конфига:
+
+```bash
+openclaw --version   # OpenClaw 2026.9.7
+openclaw config validate
+openclaw config get <dot.path>
+openclaw config set <dot.path> <value>
+openclaw config patch --file ./openclaw.patch.json5 --dry-run
+```
+
+## Конфигурация компонента
+
+- `miniAppUrl` — базовый HTTPS URL Mini App.
+- `placePhotoDir` — закрытое хранилище фото (доступ только через авторизованный API).
+- `calendarId` — опционально, семейный Google Calendar для датированных записей.
+- `driveFolderId` — опционально, папка Google Drive для нативных вложений фото к событиям календаря (используется вместе с `calendarId`/синхронизированным событием).
+
+## Telegram initData: HMAC и ACL
+
+- Каждый запрос API авторизуется через `Telegram.WebApp.initData`.
+- Проверка HMAC выполняется с использованием account token из OpenClaw (по аккаунту/боту); пользователь привязывается к маршруту участника семьи.
+- Доступ между участниками разграничивается данными Family Hub: личные заметки и секретное содержимое капсул не раскрываются неадресатам.
+- Фото отдаются только через API с проверкой initData; публичных URL файлов нет.
+
+## Фото: лимиты и очистка метаданных (по текущему коду `extras.mjs`)
+
+- Форматы: JPEG, PNG, WebP.
+- **Максимум 1.7 MB на загрузку** (`MAX_PHOTO_BYTES = 1_700_000`).
+- **Общая квота хранилища фото 250 MiB** (`DEFAULT_MAX_PHOTO_STORAGE_BYTES = 250*1024*1024`), проверяется по сохранённым файлам Mini App.
+- **До 6 фото на запись** в поддерживаемой секции.
+- **Размеры изображения:** максимум `12 000 px` по стороне (`MAX_PHOTO_DIMENSION`) и `40 000 000` пикселей (`MAX_PHOTO_PIXELS`), если размеры удалось определить из формата.
+- Серверная очистка метаданных перед сохранением/Drive: JPEG APP1(EXIF/XMP), APP2, APP13(IPTC), COM; PNG `eXIf/tEXt/zTXt/iTXt`; WebP `EXIF/XMP `. Клиентской обработке не доверять.
+- При удалении фото с Drive-синхронизацией удаление проходит через job/Drive-логику; локальные файлы в закрытом хранилище.
+
+## Опциональные интеграции
+
+- **Google Calendar (опционально):** при `calendarId` датированные записи могут синхронизироваться с календарём. При нескольких household в одном экземпляре Mini App shared calendar блокируется (защита от неоднозначного маппинга).
+- **Google Drive (опционально):** при `driveFolderId` фото может прикрепляться как нативное вложение к уже синхронизированному событию календаря. Локальные фото остаются приватными; в Drive уходят файлы, выбранные для существующего calendar event.
+- **Gemini / ИИ (опционально):** только по явному действию пользователя, с лимитом частоты. Текст, введённый пользователем, **передаётся в Google Generative Language API** (`gemini-2.5-flash-lite`, через `GEMINI_API_KEY` в окружении runtime). При недоступности модели/ключа используется локальный fallback, UI сообщает об этом.
+
+## Moscow timezone limitation
+
+Текущая логика дат/календаря Mini App ориентирована на Москву: `moscowToday()` использует `Europe/Moscow`; calendar-sync использует московские допущения для all-day/list запросов (`+03:00` в timeMin/timeMax). Поведение вне Moscow-сценария **не валидировалось**.
+
+## Что проверить на стенде (не проверялось здесь)
+
+- Чистая установка Gateway/mobile с подключением плагина.
+- HTTPS-доступность `/family-app/`, открытие Mini App в Telegram mobile/WebView.
+- Корректная привязка initData к маршрутам участников и ACL.
+- Google Calendar/Drive при включённых `calendarId`/`driveFolderId`.
+- AI-функции при наличии `GEMINI_API_KEY` и локальный fallback без него.
+- Backup/restore OpenClaw и перенос state (команды OpenClaw 2026.9.7 описаны в [`../README.md`](../README.md)).

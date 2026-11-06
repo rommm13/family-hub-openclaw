@@ -1,0 +1,82 @@
+{
+  "id": "family-hub",
+  "name": "Family Hub",
+  "description": "Shared family state, Telegram Mini App and trusted family workflows.",
+  "activation": {
+    "onStartup": true
+  },
+  "skills": [
+    "./skills/family-youme"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "dataDir": {
+        "type": "string"
+      },
+      "dbPath": {
+        "type": "string"
+      },
+      "runtimeId": {
+        "type": "string"
+      },
+      "agentId": {
+        "type": "string"
+      },
+      "buttonText": {
+        "type": "string"
+      },
+      "calendarId": {
+        "type": "string"
+      },
+      "calendarAccount": {
+        "type": "string"
+      },
+      "miniAppUrl": {
+        "type": "string"
+      },
+      "driveFolderId": {
+        "type": "string"
+      },
+      "placePhotoDir": {
+        "type": "string"
+      },
+      "reminderTime": {
+        "type": "string"
+      },
+      "reminderTimezone": {
+        "type": "string"
+      },
+      "surpriseAssetDir": {
+        "type": "string"
+      },
+      "surpriseMediaDir": {
+        "type": "string"
+      },
+      "surpriseAutoMemberId": {
+        "type": "string"
+      },
+      "surpriseManualLimit": {
+        "type": "number"
+      },
+      "surpriseUnlimitedMemberIds": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "version": "0.2.22",
+  "contracts": {
+    "tools": [
+      "family"
+    ]
+  },
+  "toolMetadata": {
+    "family": {
+      "optional": true
+    }
+  }
+}
