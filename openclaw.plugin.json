@@ -1,7 +1,7 @@
 {
   "id": "family-hub",
   "name": "Family Hub",
-  "description": "Shared family state, Telegram Mini App and trusted family workflows.",
+  "description": "Family Hub — family Telegram bot and Mini App for OpenClaw: tasks, calendar, reminders, Love Is surprises",
   "activation": {
     "onStartup": true
   },
@@ -68,7 +68,7 @@
       }
     }
   },
-  "version": "0.2.22-beta.1",
+  "version": "0.2.22-beta.2",
   "contracts": {
     "tools": [
       "family"

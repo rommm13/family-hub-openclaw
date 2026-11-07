@@ -1,31 +1,32 @@
 {
-    "name":  "@rommm13/openclaw-family-hub",
-    "version":  "0.2.22-beta.1",
-    "type":  "module",
-    "scripts":  {
-                    "test":  "node --test",
-                    "test:miniapp:audit":  "node miniapp/check.mjs \u0026\u0026 node miniapp/audit.mjs \u0026\u0026 node miniapp/audit-extras.mjs \u0026\u0026 node miniapp/audit-photo-calendar.mjs \u0026\u0026 node miniapp/audit-ui.mjs \u0026\u0026 node miniapp/audit-robot.mjs"
-                },
-    "peerDependencies":  {
-                             "openclaw":  "2026.9.7"
-                         },
-    "engines":  {
-                    "node":  "\u003e=24.22.1 \u003c25"
-                },
-    "openclaw":  {
-                     "extensions":  [
-                                        "./dist/plugin.js"
-                                    ],
-                     "compat":  {
-                                    "pluginApi":  "2026.9.7",
-                                    "minGatewayVersion":  "2026.9.7"
-                                },
-                     "build":  {
-                                   "openclawVersion":  "2026.9.7"
-                               }
-                 },
-    "devDependencies":  {
-                            "linkedom":  "0.18.13"
-                        },
-    "license":  "MIT"
+  "name": "@rommm13/openclaw-family-hub",
+  "version": "0.2.22-beta.2",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:miniapp:audit": "node miniapp/check.mjs && node miniapp/audit.mjs && node miniapp/audit-extras.mjs && node miniapp/audit-photo-calendar.mjs && node miniapp/audit-ui.mjs && node miniapp/audit-robot.mjs"
+  },
+  "peerDependencies": {
+    "openclaw": "2026.9.7"
+  },
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
+  "openclaw": {
+    "extensions": [
+      "./dist/plugin.js"
+    ],
+    "compat": {
+      "pluginApi": "2026.9.7",
+      "minGatewayVersion": "2026.9.7"
+    },
+    "build": {
+      "openclawVersion": "2026.9.7"
+    }
+  },
+  "devDependencies": {
+    "linkedom": "0.18.13"
+  },
+  "license": "MIT",
+  "description": "Family Hub — семейный Telegram-бот и Mini App для OpenClaw: задачи, календарь, напоминания и сюрпризы Love Is"
 }

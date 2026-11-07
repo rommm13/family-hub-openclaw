@@ -2,7 +2,7 @@
 
 Telegram Mini App UI в составе `family-hub` (`plugin/miniapp/`). Работает поверх общей SQLite-базы Family Hub и runtime-плагина OpenClaw; отдельной копии бизнес-логики здесь нет.
 
-> Статус: документация компонента по текущему исходному коду. **Clean Gateway/mobile install not tested** — HTTPS/Mini App, Gateway, Telegram mobile, календарь/Drive и AI-функции требуют проверки на чистом стенде.
+> Статус: документация компонента по текущему исходному коду. Оригинальный Family Hub реально работал в Telegram на телефонах владельца и супруги; отдельный end-to-end smoke заново собранного tarball этой версии на двух телефонах не выполнялся.
 
 ## Базовые функции
 
@@ -19,7 +19,7 @@ Telegram Mini App открывается по **HTTPS URL**. Для Family Hub M
 2. Укажите `miniAppUrl` в конфиге плагина — базовый HTTPS URL Mini App (кнопка/навигация).
 3. Подключите Telegram-бота к OpenClaw каналом `telegram`; храните токен только в защищённой конфигурации/секретах.
 4. Проверьте, что участники семьи имеют корректные Telegram routes/bindings в Family Hub, иначе initData не привяжется к участнику.
-5. Проверьте открытие в DM/Telegram WebView на целевом mobile/Gateway; clean Gateway/mobile здесь **не проверялось**.
+5. Проверьте открытие в DM/Telegram WebView на целевом mobile/Gateway; отдельный smoke заново собранного tarball на двух телефонах не выполнялся (оригинал работал на телефонах владельца и супруги).
 
 Для Control UI Dashboard Mini App (`/dashboard`) OpenClaw CLI/docs 2026.9.7 используют отдельный Tailscale-путь (`gateway.tailscale.mode: serve` или `funnel`) — это **не то же самое**, что собственный Family Hub маршрут `/family-app/`. Не подменяйте один сценарий другим без проверки на вашем стенде.
 
